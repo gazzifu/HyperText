@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notizen</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="./katex.min.css">
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div id="sidebar-header">
+      <span id="app-title">Notizen</span>
+    </div>
+    <div id="sidebar-search">
+      <input type="text" id="search-input" placeholder="Suchen…" />
+    </div>
+    <ul id="note-list"></ul>
+    <div id="sidebar-footer">
+      <button id="btn-settings" title="Notizordner wählen">⚙ Ordner</button>
+      <button id="btn-new" title="Neuer Ordner">＋</button>
+    </div>
+    <div id="toggle-sidebar-btn" title="Sidebar ein/ausblenden">◨</div>
+  </aside>
+
+  <!-- Hauptbereich -->
+  <main id="main">
+
+    <!-- Toolbar -->
+    <div id="toolbar">
+      <div class="spacer"></div>
+      <button data-cmd="bold"          title="Fett (Ctrl+B)">         <b>B</b>       </button>
+      <button data-cmd="italic"        title="Kursiv (Ctrl+I)">       <i>I</i>       </button>
+      <button data-cmd="strike"        title="Durchgestrichen">       <s>S</s>       </button>
+      <button data-cmd="underline"     title="Unterstrichen (Ctrl+U)"><u>U</u>       </button>
+      <button data-cmd="highlight"     title="Markiert (Ctrl+Shift+H)">               ▨            </button>
+      <button data-cmd="code"          title="Inline-Code">           <code>&lt;/&gt;</code> </button>
+      <div class="sep"></div>
+      <button data-cmd="h1"            title="Überschrift 1">         H1             </button>
+      <button data-cmd="h2"            title="Überschrift 2">         H2             </button>
+      <button data-cmd="h3"            title="Überschrift 3">         H3             </button>
+      <div class="sep"></div>
+      <button data-cmd="table" title="Tabelle einfügen">⊞</button>
+      <div class="sep"></div>
+      <button data-cmd="bulletList"    title="Aufzählung">            ≡              </button>
+      <button data-cmd="orderedList"   title="Nummerierung">          ①              </button>
+      <div class="sep"></div>
+      <button data-cmd="blockquote"    title="Zitat">                 "              </button>
+      <button data-cmd="codeBlock"     title="Codeblock">             { }            </button>
+      <button data-cmd="hr"            title="Trennlinie">            —              </button>
+      <div class="sep"></div>
+      <button data-cmd="mathInline" title="Inline-Mathe (LaTeX)">∑</button>
+      <button data-cmd="smilesBlock" title="Molekül (SMILES)">⬡</button>
+      <div class="spacer"></div>
+      <span id="save-indicator">●</span>
+      <div class="sep"></div>
+      <button data-cmd="undo"          title="Rückgängig (Ctrl+Z)">   ↩              </button>
+      <button data-cmd="redo"          title="Wiederholen (Ctrl+Y)">  ↪              </button>
+    </div>
+
+    <!-- Editor -->
+    <div id="editor-wrap">
+      <div id="editor"></div>
+    </div>
+
+    <!-- Leerer Zustand -->
+    <div id="empty-state">
+      <p>Keine Notiz geöffnet.<br/>Wähle eine aus der Liste oder erstelle eine neue mit <kbd>Ctrl+N</kbd>.</p>
+    </div>
+
+  </main>
+
+  <!-- Kontextmenü -->
+  <div id="context-menu">
+    <div class="ctx-item" data-cmd="link">Link einfügen…</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item danger" data-cmd="deleteNote">Notiz löschen</div>
+    <div class="ctx-item" data-cmd="table">Tabelle einfügen</div>
+    <div class="ctx-sep" id="ctx-table-sep"></div>
+    <div class="ctx-item" id="ctx-table-group" data-cmd="addColumnBefore">Spalte links einfügen</div>
+    <div class="ctx-item" data-cmd="addColumnAfter">Spalte rechts einfügen</div>
+    <div class="ctx-item danger" data-cmd="deleteColumn">Spalte löschen</div>
+    <div class="ctx-item" data-cmd="addRowBefore">Zeile oben einfügen</div>
+    <div class="ctx-item" data-cmd="addRowAfter">Zeile unten einfügen</div>
+    <div class="ctx-item danger" data-cmd="deleteRow">Zeile löschen</div>
+    <div class="ctx-item danger" data-cmd="deleteTable">Tabelle löschen</div>
+    <div class="ctx-item" data-cmd="toggleHeaderRow">Header-Zeile ein/aus</div>
+  </div>
+
+  <!-- Datei-Kontextmenü -->
+  <div id="file-context-menu">
+    <div class="ctx-item" id="ctx-rename">Umbenennen</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item danger" id="ctx-delete-file">Löschen</div>
+  </div>
+
+  <!-- Ordner-Kontextmenü -->
+   <div id="folder-context-menu">
+    <div class="ctx-item" id="ctx-folder-rename">Umbenennen</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item danger" id="ctx-folder-delete">Löschen</div>
+  </div>
+
+  <!-- Dialoge -->
+  <div id="overlay" class="hidden">
+    <div id="dialog">
+      <p id="dialog-label">Name:</p>
+      <input type="text" id="dialog-input" />
+      <div id="dialog-buttons">
+        <button id="dialog-cancel">Abbrechen</button>
+        <button id="dialog-ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./katex.min.js"></script>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
