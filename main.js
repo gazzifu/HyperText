@@ -395,6 +395,7 @@ async function createNote() {
     const filename = name.replace(/[\\/:*?"<>|]/g, '_') + '.html';
     try {
       await githubAPI.writeNote(filename, '<p></p>');
+      await new Promise(r => setTimeout(r, 1000));
       await refreshSidebar();
       await loadNote(filename);
     } catch (err) {
@@ -410,6 +411,7 @@ async function createNoteInFolder(folder) {
     const path = `${folder}/${filename}`;
     try {
       await githubAPI.writeNote(path, '<p></p>');
+      await new Promise(r => setTimeout(r, 1000));
       await refreshSidebar();
       await loadNote(path);
     } catch (err) {
@@ -444,6 +446,7 @@ async function deleteCurrentNote() {
     if (confirm !== 'Ja, löschen') return;
     try {
       await githubAPI.deleteNote(currentNotePath);
+      await new Promise(r => setTimeout(r, 1000));
       currentNotePath = null;
       editor.commands.setContent('<p></p>');
       $('editor-wrap').style.display = 'none';
@@ -462,6 +465,7 @@ async function moveNoteTo(srcFile, targetFolder) {
   if (srcFile === newPath) return;
   try {
     await githubAPI.renameNote(srcFile, newPath);
+    await new Promise(r => setTimeout(r, 1000));
     if (currentNotePath === srcFile) currentNotePath = newPath;
     await refreshSidebar();
   } catch (err) {
@@ -488,6 +492,7 @@ document.getElementById('ctx-folder-rename').onclick = () => {
     if (!newName || newName === ctxFolder) return;
     try {
       await githubAPI.renameFolder(ctxFolder, newName);
+      await new Promise(r => setTimeout(r, 1000));
       if (currentNotePath && currentNotePath.startsWith(ctxFolder + '/')) {
         currentNotePath = currentNotePath.replace(ctxFolder, newName);
       }
@@ -505,6 +510,7 @@ document.getElementById('ctx-folder-delete').onclick = () => {
     if (confirm !== 'Ja, löschen') return;
     try {
       await githubAPI.deleteFolder(ctxFolder);
+      await new Promise(r => setTimeout(r, 1000));
       if (currentNotePath && currentNotePath.startsWith(ctxFolder + '/')) {
         currentNotePath = null;
         editor.commands.setContent('<p></p>');
@@ -601,6 +607,7 @@ document.getElementById('ctx-rename').onclick = () => {
     const newPath = folder ? `${folder}/${newFile}` : newFile;
     try {
       await githubAPI.renameNote(ctxFile, newPath);
+      await new Promise(r => setTimeout(r, 1000));
       if (currentNotePath === ctxFile) currentNotePath = newPath;
       await refreshSidebar();
     } catch (err) {
@@ -616,6 +623,7 @@ document.getElementById('ctx-delete-file').onclick = () => {
     if (confirm !== 'Ja, löschen') return;
     try {
       await githubAPI.deleteNote(ctxFile);
+      await new Promise(r => setTimeout(r, 1000));
       if (currentNotePath === ctxFile) {
         currentNotePath = null;
         editor.commands.setContent('<p></p>');
