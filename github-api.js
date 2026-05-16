@@ -223,13 +223,13 @@ export async function initGitHub() {
       }
 
       // Token testen
-      const btn = document.getElementById('gh-login-btn');
+      const btn = document.getElementById('-btn');
       btn.textContent = 'Verbinde…';
       btn.disabled = true;
 
       try {
         const res = await fetch(`https://api.github.com/repos/${repo}`, {
-          headers: { 'Authorization': `Bearer ${token}` },
+            headers: { 'Authorization': `Bearer ${token}` },
         });
         if (!res.ok) throw new Error('Repository nicht gefunden oder kein Zugriff.');
 
@@ -240,7 +240,7 @@ export async function initGitHub() {
 
         overlay.remove();
         resolve();
-      } catch (err) {
+    } catch (err) {
         errEl.textContent = err.message;
         btn.textContent = 'Verbinden';
         btn.disabled = false;

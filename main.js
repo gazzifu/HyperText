@@ -692,5 +692,6 @@ $('btn-settings').onclick = () => {
 // ============================================================
 await initGitHub();
 initEditor();
+await refreshSidebar();
 window._editor = editor;
 
