@@ -422,9 +422,10 @@ async function createFolder() {
   showDialog('Name des neuen Ordners:', '', async name => {
     if (!name) return;
     const folderName = name.replace(/[\\/:*?"<>|]/g, '_');
-    // GitHub kennt keine leeren Ordner – wir legen eine .gitkeep-Datei an
     try {
       await githubAPI.writeNote(`${folderName}/.gitkeep`, '');
+      // GitHub braucht einen Moment
+      await new Promise(r => setTimeout(r, 1000));
       await refreshSidebar();
     } catch (err) {
       alert('Fehler: ' + err.message);
