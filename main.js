@@ -10,6 +10,13 @@ import SmilesDrawer from 'https://esm.sh/smiles-drawer@2';
 import Underline from 'https://esm.sh/@tiptap/extension-underline@2';
 import { mathBlock, smilesBlock, mathInline, insertMathBlock, insertSmilesBlock, insertMathInline } from './math-smiles-nodes.js';
 import { githubAPI, initGitHub } from './github-api.js';
+import { localDB } from './local-db.js';
+import {
+  writeNote, deleteNote, renameNote,
+  createFolder, renameFolder, deleteFolder,
+  readNote, listContents,
+  initialSync, startBackgroundSync,
+} from './sync.js';
 const katex = window.katex;
 
 // ============================================================
@@ -50,7 +57,7 @@ function initEditor() {
     onUpdate() {
       setDirty(true);
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(saveCurrentNote, 20000);
+      saveTimer = setTimeout(saveCurrentNote, 10000);
     },
     onSelectionUpdate() {
       updateToolbarState();
@@ -159,7 +166,7 @@ async function saveCurrentNote() {
   if (!currentNotePath || !editor) return;
   try {
     const html = editor.getHTML();
-    await githubAPI.writeNote(currentNotePath, html);
+    await writeNote(currentNotePath, html); 
     setDirty(false);
   } catch (err) {
     console.error('Speichern fehlgeschlagen:', err);
@@ -171,7 +178,7 @@ async function saveCurrentNote() {
 // ============================================================
 async function loadNote(filename) {
   try {
-    const html = await githubAPI.readNote(filename);
+    const html = await readNote(filename); 
     currentNotePath = filename;
     editor.commands.setContent(html || '<p></p>');
     editor.commands.focus();
@@ -194,7 +201,7 @@ async function loadNote(filename) {
 // ============================================================
 async function refreshSidebar(filter = '') {
   try {
-    const { files, folders } = await githubAPI.listContents();
+    const { files, folders } = await listContents();
 
     const list = $('note-list');
     list.innerHTML = '';
@@ -394,8 +401,7 @@ async function createNote() {
     if (!name) return;
     const filename = name.replace(/[\\/:*?"<>|]/g, '_') + '.html';
     try {
-      await githubAPI.writeNote(filename, '<p></p>');
-      await new Promise(r => setTimeout(r, 1000));
+      await writeNote(filename, '<p></p>'); 
       await refreshSidebar();
       await loadNote(filename);
     } catch (err) {
@@ -410,8 +416,7 @@ async function createNoteInFolder(folder) {
     const filename = name.replace(/[\\/:*?"<>|]/g, '_') + '.html';
     const path = `${folder}/${filename}`;
     try {
-      await githubAPI.writeNote(path, '<p></p>');
-      await new Promise(r => setTimeout(r, 1000));
+      await writeNote(filename, '<p></p>'); 
       await refreshSidebar();
       await loadNote(path);
     } catch (err) {
@@ -425,9 +430,7 @@ async function createFolder() {
     if (!name) return;
     const folderName = name.replace(/[\\/:*?"<>|]/g, '_');
     try {
-      await githubAPI.writeNote(`${folderName}/.gitkeep`, '');
-      // GitHub braucht einen Moment
-      await new Promise(r => setTimeout(r, 1000));
+      await createFolder(folderName); 
       await refreshSidebar();
     } catch (err) {
       alert('Fehler: ' + err.message);
@@ -445,8 +448,7 @@ async function deleteCurrentNote() {
   showDialog(`"${currentNotePath}" löschen?`, 'Ja, löschen', async confirm => {
     if (confirm !== 'Ja, löschen') return;
     try {
-      await githubAPI.deleteNote(currentNotePath);
-      await new Promise(r => setTimeout(r, 1000));
+      await deleteNote(currentNotePath); 
       currentNotePath = null;
       editor.commands.setContent('<p></p>');
       $('editor-wrap').style.display = 'none';
@@ -464,8 +466,7 @@ async function moveNoteTo(srcFile, targetFolder) {
   const newPath  = targetFolder ? `${targetFolder}/${filename}` : filename;
   if (srcFile === newPath) return;
   try {
-    await githubAPI.renameNote(srcFile, newPath);
-    await new Promise(r => setTimeout(r, 1000));
+    await renameNote(srcFile, newPath); 
     if (currentNotePath === srcFile) currentNotePath = newPath;
     await refreshSidebar();
   } catch (err) {
@@ -491,8 +492,7 @@ document.getElementById('ctx-folder-rename').onclick = () => {
   showDialog(`Ordner umbenennen: "${ctxFolder}"`, ctxFolder, async newName => {
     if (!newName || newName === ctxFolder) return;
     try {
-      await githubAPI.renameFolder(ctxFolder, newName);
-      await new Promise(r => setTimeout(r, 1000));
+      await renameFolder(ctxFolder, newName); 
       if (currentNotePath && currentNotePath.startsWith(ctxFolder + '/')) {
         currentNotePath = currentNotePath.replace(ctxFolder, newName);
       }
@@ -509,8 +509,7 @@ document.getElementById('ctx-folder-delete').onclick = () => {
   showDialog(`Ordner "${ctxFolder}" löschen?`, 'Ja, löschen', async confirm => {
     if (confirm !== 'Ja, löschen') return;
     try {
-      await githubAPI.deleteFolder(ctxFolder);
-      await new Promise(r => setTimeout(r, 1000));
+      await deleteFolder(ctxFolder); 
       if (currentNotePath && currentNotePath.startsWith(ctxFolder + '/')) {
         currentNotePath = null;
         editor.commands.setContent('<p></p>');
@@ -606,8 +605,7 @@ document.getElementById('ctx-rename').onclick = () => {
     const newFile = newName.replace(/[\\/:*?"<>|]/g, '_') + '.html';
     const newPath = folder ? `${folder}/${newFile}` : newFile;
     try {
-      await githubAPI.renameNote(ctxFile, newPath);
-      await new Promise(r => setTimeout(r, 1000));
+      await renameNote(ctxFile, newPath); 
       if (currentNotePath === ctxFile) currentNotePath = newPath;
       await refreshSidebar();
     } catch (err) {
@@ -622,8 +620,7 @@ document.getElementById('ctx-delete-file').onclick = () => {
   showDialog(`"${ctxFile.split('/').pop()}" löschen?`, 'Ja, löschen', async confirm => {
     if (confirm !== 'Ja, löschen') return;
     try {
-      await githubAPI.deleteNote(ctxFile);
-      await new Promise(r => setTimeout(r, 1000));
+      await deleteNote(ctxFile);
       if (currentNotePath === ctxFile) {
         currentNotePath = null;
         editor.commands.setContent('<p></p>');
@@ -691,7 +688,11 @@ $('btn-settings').onclick = () => {
 // Start
 // ============================================================
 await initGitHub();
+await localDB.init();
 initEditor();
 window._editor = editor;
-await refreshSidebar();
-
+await refreshSidebar();        // sofort aus IndexedDB laden
+initialSync().then(() => {     // im Hintergrund von GitHub laden
+  refreshSidebar();            // Sidebar nach Sync aktualisieren
+});
+startBackgroundSync();         // Queue alle 30s abarbeiten

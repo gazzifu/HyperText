@@ -350,6 +350,19 @@ body {
 #save-indicator.unsaved { color: var(--accent); }
 #save-indicator.saved   { color: #5a9a5a; }
 
+.sync-status {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-family: var(--font-ui);
+  transition: opacity 0.3s;
+}
+
+.sync-idle   { opacity: 0; }
+.sync-syncing { color: var(--accent); opacity: 1; }
+.sync-done   { color: #5a9a5a; opacity: 1; }
+.sync-error  { color: var(--danger); opacity: 1; }
+
 /* ============================================================
    Editor-Bereich
    ============================================================ */
